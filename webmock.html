@@ -10,8 +10,14 @@
     <script src="http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js" type="text/javascript"></script>
     <script src="http://alexgorbatchev.com/pub/sh/current/scripts/shAutoloader.js" type="text/javascript"></script>
     <script src="http://alexgorbatchev.com/pub/sh/current/scripts/shBrushRuby.js" type="text/javascript"></script>
+    <script src="http://alexgorbatchev.com/pub/sh/current/scripts/shBrushBash.js" type="text/javascript"></script>
     <script type="text/javascript">SyntaxHighlighter.all()</script>
+    
+    <style type="text/css">
+      .wrong { font-size: 120%; font-weight: bolder; color: red; }
+    </style>
   </head>
+  
   <body>
     <div class="slide cover">
       <h1>Testing Remote Services with WebMock</h1>
@@ -49,7 +55,7 @@ end</pre>
     
     <div class="slide">
       <h1>What’s the matter with this?</h1>
-      <pre class="brush: ruby">describe Twitter do
+      <pre class="brush: ruby; highlight: 4">describe Twitter do
   describe "user_info" do
     it "should get extended user information" do
       Twitter.user_info('marnen')['name'].should == "Marnen Laibow-Koser"
@@ -57,12 +63,33 @@ end</pre>
   end
 end</pre>
       <ul>
-        <li>Unit tests should test code in relative isolation</li>
+        <li>It fails to isolate code</li>
         <li>It tests the remote service, not our code</li>
         <li>If our service call has side effects, testing is difficult</li>
         <li>If the network is down, the test will fail</li>
         <li>Calling external services slows our tests down</li>
       </ul>
+    </div>
+    
+    <div class="slide">
+      <h1>WebMock to the rescue!</h1>
+      <p><a href="http://github.com/bblimke/webmock">http://github.com/bblimke/webmock</a></p>
+      <pre class="brush: bash">gem install webmock</pre>
+      <p>spec/spec_helper</p>
+      <pre class="brush: ruby">require 'webmock/rspec'
+
+Spec::Runner.configure do |config|
+  config.include WebMock
+end</pre>
+      <p>features/support/env.rb</p>
+      <pre class="brush: ruby">require 'webmock/rspec'  
+module WebMockWorld
+  include WebMock
+  include WebMock::Matchers
+end
+
+World(WebMockWorld)</pre>
+      <p>(Works with Test::Unit too.)</p>
     </div>
   </body>
 </html>
