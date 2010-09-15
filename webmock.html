@@ -91,5 +91,23 @@ end
 World(WebMockWorld)</pre>
       <p>(Works with Test::Unit too.)</p>
     </div>
+    
+    <div class="slide">
+      <h1>So what does it do?</h1>
+      <h2>WebMock <em>intercepts all HTTP requests</em></h2>
+      <ul>
+        <li>If WebMock expects the request, it returns a canned response</li>
+        <li>If it doesn’t expect the request, it <strong>raises an exception</strong>!</li>
+      </ul>
+      
+      <h2>Request matching is very flexible</h2>
+      <h3>Simple string and HTTP method matching</h3>
+      <pre class="brush: ruby">stub_request(:get, "www.example.com").to_return(:body => "My canned response")</pre>
+      <h3>Query parameter matching</h3>
+      <pre class="brush: ruby">stub_request(:post, "www.example.com").with(:query => {'name' => 'marnen'})</pre>
+      <h3>Regular expression matching</h3>
+      <pre class="brush: ruby">stub_request(:any, /^www\.example\.(com|net|org)/)</pre>
+      <h3>And lots more!</h3>
+    </div>
   </body>
 </html>
