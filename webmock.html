@@ -42,16 +42,20 @@
     get "http://api.twitter.com/1/users/show/#{username}.#{format}"
   end
 end</pre>
-      <h2>The obvious approach</h2>
-      <p>Call the external service and make sure we’re processing the result</p>
-      <pre class="brush: ruby">describe Twitter do
+      <div class="incremental">
+        <div>
+          <h2>The obvious approach</h2>
+          <p>Call the external service and make sure we’re processing the result</p>
+          <pre class="brush: ruby">describe Twitter do
   describe "user_info" do
     it "should get extended user information" do
       Twitter.user_info('marnen')['name'].should == "Marnen Laibow-Koser"
     end
   end
 end</pre>
-      <p class="wrong incremental">WRONG!</p>
+        </div>
+        <p class="wrong">WRONG!</p>
+      </div>
     </div>
     
     <div class="slide">
@@ -96,20 +100,30 @@ World(WebMockWorld)</pre>
     
     <div class="slide">
       <h1>So what does it do?</h1>
-      <h2>WebMock <em>intercepts all HTTP requests</em></h2>
-      <ul>
-        <li>If WebMock expects the request, it returns a canned response</li>
-        <li>If it doesn’t expect the request, it <strong>raises an exception</strong>!</li>
-      </ul>
+      <div class="incremental">
+        <div>
+          <h2>WebMock <em>intercepts all HTTP requests</em></h2>
+          <ul>
+            <li>If WebMock expects the request, it returns a canned response</li>
+            <li>If it doesn’t expect the request, it <strong>raises an exception</strong>!</li>
+          </ul>
+        </div>
       
-      <h2>Request matching is very flexible</h2>
-      <h3>Simple string and HTTP method matching</h3>
-      <pre class="brush: ruby">stub_request(:get, "www.example.com").to_return(:body => "My canned response")</pre>
-      <h3>Query parameter matching</h3>
-      <pre class="brush: ruby">stub_request(:post, "www.example.com").with(:query => {'name' => 'marnen'})</pre>
-      <h3>Regular expression matching</h3>
-      <pre class="brush: ruby">stub_request(:any, /^www\.example\.(com|net|org)/)</pre>
-      <h3>And lots more!</h3>
+        <h2>Request matching is very flexible</h2>
+        <div>
+          <h3>Simple string and HTTP method matching</h3>
+          <pre class="brush: ruby">stub_request(:get, "www.example.com").to_return(:body => "My canned response")</pre>
+        </div>
+        <div>
+          <h3>Query parameter matching</h3>
+          <pre class="brush: ruby">stub_request(:post, "www.example.com").with(:query => {'name' => 'marnen'})</pre>
+        </div>
+        <div>
+          <h3>Regular expression matching</h3>
+          <pre class="brush: ruby">stub_request(:any, /^www\.example\.(com|net|org)/)</pre>
+        </div>
+        <h3>And lots more!</h3>
+      </div>
     </div>
     
     <div class="slide">
