@@ -22,16 +22,26 @@
     <div class="slide">
       <h1>How do we test this code?</h1>
       <code>
-        <pre>
-class Twitter
+        <pre>class Twitter
   include HTTParty
   
   def self.user_info(username, format = :json)
     get "http://api.twitter.com/1/users/show/#{username}.#{format}"
   end
-end
-        </pre>
+end</pre>
       </code>
+      <h2>The obvious approach</h2>
+      <p>Call the external service and make sure we’re processing the result</p>
+      <code>
+        <pre>describe Twitter do
+  describe "user_info" do
+    it "should get extended user information" do
+      Twitter.user_info('marnen')['name'].should == "Marnen Laibow-Koser"
+    end
+  end
+end</pre>
+      </code>
+      <p class="wrong">WRONG!</p>
     </div>
   </body>
 </html>
