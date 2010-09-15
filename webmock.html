@@ -18,5 +18,19 @@
         <li>Good testing practice requires us to test these calls</li>
       </ul>
     </div>
+    <div class="slide">
+      <h1>How do we test this code?</h1>
+      <code>
+        <pre>
+class Twitter
+  include HTTParty
+  
+  def self.user_info(username, format = :json)
+    get "http://api.twitter.com/1/users/show/#{username}.#{format}"
+  end
+end
+        </pre>
+      </code>
+    </div>
   </body>
 </html>
