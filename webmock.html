@@ -51,7 +51,7 @@ end</pre>
     end
   end
 end</pre>
-      <p class="wrong">WRONG!</p>
+      <p class="wrong incremental">WRONG!</p>
     </div>
     
     <div class="slide">
@@ -114,14 +114,20 @@ World(WebMockWorld)</pre>
     
     <div class="slide">
       <h1>How do we test with WebMock?</h1>
-      <h2>Figure out what the Web service provides and save it somewhere for future use</h2>
-      <pre class="brush: bash">curl -is http://api.twitter.com/1/users/show/marnen.json &gt; canned_response.json</pre>
-      <p>canned_response.json</p>
-      <pre class="brush: js">HTTP/1.1 200 OK
-
-{"screen_name":"marnen", "name":"Marnen Laibow-Koser", ...}</pre>
-      <h2>Tell WebMock to expect a particular HTTP call and return the canned response</h2>
-      <pre class="brush: ruby; highlight: [4, 5]">describe Twitter do
+      <div class="incremental">
+        <div>
+          <h2>Figure out what the Web service provides and save it somewhere for future use</h2>
+          <pre class="brush: bash">curl -is http://api.twitter.com/1/users/show/marnen.json &gt; canned_response.json</pre>
+        </div>
+        <div>
+          <p>canned_response.json</p>
+          <pre class="brush: js">HTTP/1.1 200 OK
+    
+    {"screen_name":"marnen", "name":"Marnen Laibow-Koser", ...}</pre>
+        </div>
+        <div>
+          <h2>Tell WebMock to expect a particular HTTP call and return the canned response</h2>
+          <pre class="brush: ruby; highlight: [4, 5]">describe Twitter do
   describe "user_info" do
     it "should get extended user information" do
       canned_response = File.new 'canned_response.json'
@@ -131,27 +137,41 @@ World(WebMockWorld)</pre>
     end
   end
 end</pre>
+        </div>
+      </div>
     </div>
     
     <div class="slide">
       <h1>Why should we use WebMock?</h1>
-      <h2>Tests are clean and isolated</h2>
-      <p>No external calls means no external dependencies</p>
-      <h2>Tests run quickly</h2>
-      <p>No network overhead!</p>
-      <h2>We know we’re not calling anything unexpected</h2>
-      <p>WebMock raises an exception if it doesn’t recognize an HTTP request</p>
-      <h2>It’s very easy to test error conditions</h2>
-      <p>forbidden.json</p>
-      <pre class="brush: js">HTTP/1.1 403 Forbidden</pre>
-      <p>spec/models/twitter_spec.rb</p>
-      <pre class="brush: ruby; highlight: 3">describe Twitter do
+      <div class="incremental">
+        <div>
+          <h2>Tests are clean and isolated</h2>
+          <p>No external calls means no external dependencies</p>
+        </div>
+        <div>
+          <h2>Tests run quickly</h2>
+          <p>No network overhead!</p>
+        </div>
+        <div>
+          <h2>We know we’re not calling anything unexpected</h2>
+          <p>WebMock raises an exception if it doesn’t recognize an HTTP request</p>
+        </div>
+        <h2>It’s very easy to test error conditions</h2>
+        <div>
+          <p>forbidden.json</p>
+          <pre class="brush: js">HTTP/1.1 403 Forbidden</pre>
+        </div>
+        <div>
+          <p>spec/models/twitter_spec.rb</p>
+          <pre class="brush: ruby; highlight: 3">describe Twitter do
   it "should gracefully handle error conditions" do
     stub_request(:any, /^api\.twitter\.com/).to_return(File.new 'forbidden.json')
     
     lambda { Twitter.user_info('forbidden') }.should_not raise_error
   end
 end</pre>
+        </div>
+      </div>
     </div>
     
     <div class="slide">
