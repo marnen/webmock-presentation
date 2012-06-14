@@ -180,10 +180,45 @@ end</pre>
         </div>
         <p>Tag your scenarios with <code>@vcr</code> or call VCR directly in your steps</p>
         <p>And then, just run your tests as normal—no more messing with curl!</p>
+      </div>
     </div>
 
     <div class='slide'>
-
+      <h1>What does VCR do?</h1>
+      <div class='incremental'>
+        <div>
+          <h2>VCR calls the remote service as necessary, then records the responses for replay</h2>
+          <ul>
+            <li>Responses are stored in YAML files called <em>cassettes</em></li>
+            <li>Each remote call in a cassette is a separate <em>episode</em></li>
+          </ul>
+        </div>
+        <div>
+          <h2>There are four record modes</h2>
+          <dl>
+            <dt><code>:once</code></dt>
+            <dd>Record only if there is no cassette; replay every time thereafter (default)</dd>
+            <dt><code>:new_episodes</code></dt>
+            <dd>Record all new episodes (even in an existing cassette); replay ones previously recorded</dd>
+            <dt><code>:none</code></dt>
+            <dd>Replay recorded episodes, but don’t record even if there is no cassette</dd>
+            <dt><code>:all</code></dt>
+            <dd>Record all new interactions; never replay</dd>
+          </dl>
+        </div>
+        <div>
+          <h2>Other cool stuff</h2>
+          <ul>
+            <li>
+              Cassettes can contain ERb
+              <br>
+              <pre class='brush: ruby'>VCR.use_cassette('dynamic', :erb => { :arg1 => 7, :arg2 => 'baz' })</pre>
+            </li>
+            <li>Request matching can be customized</li>
+            <li>And lots more!</li>
+          </ul>
+      </div>
+    </div>
 
     <div class="slide">
       <h1>Why should we use WebMock?</h1>
