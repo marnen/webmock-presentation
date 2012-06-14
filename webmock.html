@@ -165,12 +165,12 @@ end</pre>
       <pre class='brush: ruby'>require 'vcr'
 
 VCR.configure do |c|
-c.cassette_library_dir = 'fixtures/vcr_cassettes'
-c.hook_into :webmock # or :fakeweb
+  c.cassette_library_dir = 'fixtures/vcr_cassettes'
+  c.hook_into :webmock # or :fakeweb
 end
 
 VCR.cucumber_tags do |t|
-t.tag '@vcr', :use_scenario_name => true
+  t.tag '@vcr', :use_scenario_name => true
 end
       </pre>
       <p>Tag your scenarios with <code>@vcr</code> or call VCR directly in your steps</p>
