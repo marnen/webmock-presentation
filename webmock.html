@@ -1,9 +1,9 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
   <head>
-    <title>Testing Remote Services with WebMock</title>
+    <title>Testing Remote Services with WebMock and VCR</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <link rel="stylesheet" type="text/css" media="screen, projection, print" href="http://www.w3.org/Talks/Tools/Slidy2/styles/slidy.css"> 
+    <link rel="stylesheet" type="text/css" media="screen, projection, print" href="http://www.w3.org/Talks/Tools/Slidy2/styles/slidy.css">
     <script src="http://www.w3.org/Talks/Tools/Slidy2/scripts/slidy.js" charset="utf-8" type="text/javascript"></script>
     <link href="http://alexgorbatchev.com/pub/sh/current/styles/shThemeDefault.css" rel="stylesheet" type="text/css">
     <link href="http://alexgorbatchev.com/pub/sh/current/styles/shCore.css" rel="stylesheet" type="text/css">
@@ -13,17 +13,18 @@
     <script src="http://alexgorbatchev.com/pub/sh/current/scripts/shBrushJScript.js" type="text/javascript"></script>
     <script src="http://alexgorbatchev.com/pub/sh/current/scripts/shBrushRuby.js" type="text/javascript"></script>
     <script type="text/javascript">SyntaxHighlighter.all()</script>
-    
+
     <style type="text/css">
       .wrong { font-size: 120%; font-weight: bolder; color: red; }
+      code { font-family: "Consolas", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace }
     </style>
   </head>
-  
+
   <body>
     <div class="slide cover">
-      <h1>Testing Remote Services with WebMock</h1>
+      <h1>Testing Remote Services with WebMock and VCR</h1>
       <p>Marnen E. Laibow-Koser</p>
-      <p>September 2010</p>
+      <p>September 2010, revised June 2012</p>
     </div>
     <div class="slide">
       <h1>Why do we need it?</h1>
@@ -32,12 +33,12 @@
         <li>Good testing practice requires us to test these calls</li>
       </ul>
     </div>
-    
+
     <div class="slide">
       <h1>How do we test this code?</h1>
       <pre class="brush: ruby">class Twitter
   include HTTParty
-  
+
   def self.user_info(username, format = :json)
     get "http://api.twitter.com/1/users/show/#{username}.#{format}"
   end
@@ -57,7 +58,7 @@ end</pre>
         <p class="wrong">WRONG!</p>
       </div>
     </div>
-    
+
     <div class="slide">
       <h1>What’s the matter with this?</h1>
       <pre class="brush: ruby; highlight: 4">describe Twitter do
@@ -76,7 +77,7 @@ end</pre>
         <li>It’s hard to test error conditions</li>
       </ul>
     </div>
-    
+
     <div class="slide">
       <h1>WebMock to the rescue!</h1>
       <p><a href="http://github.com/bblimke/webmock">http://github.com/bblimke/webmock</a></p>
@@ -88,7 +89,7 @@ Spec::Runner.configure do |config|
   config.include WebMock
 end</pre>
       <p>features/support/env.rb</p>
-      <pre class="brush: ruby">require 'webmock/rspec'  
+      <pre class="brush: ruby">require 'webmock/rspec'
 module WebMockWorld
   include WebMock
   include WebMock::Matchers
@@ -97,7 +98,7 @@ end
 World(WebMockWorld)</pre>
       <p>(Works with Test::Unit too.)</p>
     </div>
-    
+
     <div class="slide">
       <h1>So what does it do?</h1>
       <div class="incremental">
@@ -108,7 +109,7 @@ World(WebMockWorld)</pre>
             <li>If it doesn’t expect the request, it <strong>raises an exception</strong>!</li>
           </ul>
         </div>
-      
+
         <h2>Request matching is very flexible</h2>
         <div>
           <h3>Simple string and HTTP method matching</h3>
@@ -125,7 +126,7 @@ World(WebMockWorld)</pre>
         <h3>And lots more!</h3>
       </div>
     </div>
-    
+
     <div class="slide">
       <h1>How do we test with WebMock?</h1>
       <div class="incremental">
@@ -136,7 +137,7 @@ World(WebMockWorld)</pre>
         <div>
           <p>canned_response.json</p>
           <pre class="brush: js">HTTP/1.1 200 OK
-    
+
     {"screen_name":"marnen", "name":"Marnen Laibow-Koser", ...}</pre>
         </div>
         <div>
@@ -146,7 +147,7 @@ World(WebMockWorld)</pre>
     it "should get extended user information" do
       canned_response = File.new 'canned_response.json'
       stub_request(:get, "api.twitter.com/1/users/show/marnen.json").to_return(canned_response)
-    
+
       Twitter.user_info('marnen')['name'].should == "Marnen Laibow-Koser"
     end
   end
@@ -154,9 +155,74 @@ end</pre>
         </div>
       </div>
     </div>
-    
+
+    <div class='slide'>
+      <h1>Making things easier with VCR</h1>
+      <p>It’s tedious to use curl to get all those canned responses. Fortunately, we don’t have to.</p>
+      <div class='incremental'>
+        <div>
+          <p><a href='https://github.com/myronmarston/vcr'>https://github.com/myronmarston/vcr</a></p>
+          <pre class='brush: bash'>gem install vcr</pre>
+        </div>
+        <div>
+          <p>Put this in a Cucumber support file (also works with RSpec and Test::Unit)</p>
+          <pre class='brush: ruby'>require 'vcr'
+
+  VCR.configure do |c|
+    c.cassette_library_dir = 'fixtures/vcr_cassettes'
+    c.hook_into :webmock # or :fakeweb
+  end
+
+  VCR.cucumber_tags do |t|
+    t.tag '@vcr', :use_scenario_name => true
+  end
+          </pre>
+        </div>
+        <p>Tag your scenarios with <code>@vcr</code> or call VCR directly in your steps</p>
+        <p>And then, just run your tests as normal—no more messing with curl!</p>
+      </div>
+    </div>
+
+    <div class='slide'>
+      <h1>What does VCR do?</h1>
+      <div class='incremental'>
+        <div>
+          <h2>VCR calls the remote service as necessary, then records the responses for replay</h2>
+          <ul>
+            <li>Responses are stored in YAML files called <em>cassettes</em></li>
+            <li>Each remote call in a cassette is a separate <em>episode</em></li>
+          </ul>
+        </div>
+        <div>
+          <h2>There are four record modes</h2>
+          <dl>
+            <dt><code>:once</code></dt>
+            <dd>Record only if there is no cassette; replay every time thereafter (default)</dd>
+            <dt><code>:new_episodes</code></dt>
+            <dd>Record all new episodes (even in an existing cassette); replay ones previously recorded</dd>
+            <dt><code>:none</code></dt>
+            <dd>Replay recorded episodes, but don’t record even if there is no cassette</dd>
+            <dt><code>:all</code></dt>
+            <dd>Record all new interactions; never replay</dd>
+          </dl>
+        </div>
+        <div>
+          <h2>Other cool stuff</h2>
+          <ul>
+            <li>
+              Cassettes can contain ERb
+              <br>
+              <pre class='brush: ruby'>VCR.use_cassette('dynamic', :erb => { :arg1 => 7, :arg2 => 'baz' })</pre>
+            </li>
+            <li>Request matching can be customized</li>
+            <li>And lots more!</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
     <div class="slide">
-      <h1>Why should we use WebMock?</h1>
+      <h1>Why should we use WebMock and VCR?</h1>
       <div class="incremental">
         <div>
           <h2>Tests are clean and isolated</h2>
@@ -180,18 +246,23 @@ end</pre>
           <pre class="brush: ruby; highlight: 3">describe Twitter do
   it "should gracefully handle error conditions" do
     stub_request(:any, /^api\.twitter\.com/).to_return(File.new 'forbidden.json')
-    
+
     lambda { Twitter.user_info('forbidden') }.should_not raise_error
   end
 end</pre>
         </div>
       </div>
     </div>
-    
+
     <div class="slide">
       <h1>For more about WebMock:</h1>
       <h2>GitHub</h2>
       <p><a href="http://github.com/bblimke/webmock">http://github.com/bblimke/webmock</a></p>
+      <h1>For more about VCR:</h1>
+      <h2>GitHub</h2>
+      <p><a href='https://github.com/myronmarston/vcr'>https://github.com/myronmarston/vcr</a></p>
+      <h2>Relish</h2>
+      <p><a href='https://www.relishapp.com/myronmarston/vcr/docs'>https://www.relishapp.com/myronmarston/vcr/docs</a></p>
     </div>
   </body>
 </html>
