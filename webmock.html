@@ -159,28 +159,22 @@ end</pre>
     <div class='slide'>
       <h1>Making things easier with VCR</h1>
       <p>It’s tedious to use curl to get all those canned responses. Fortunately, we don’t have to.</p>
-      <div class='incremental'>
-        <div>
-          <p><a href='https://github.com/myronmarston/vcr'>https://github.com/myronmarston/vcr</a></p>
-          <pre class='brush: bash'>gem install vcr</pre>
-        </div>
-        <div>
-          <p>Put this in a Cucumber support file (also works with RSpec and Test::Unit)</p>
-          <pre class='brush: ruby'>require 'vcr'
+      <p><a href='https://github.com/myronmarston/vcr'>https://github.com/myronmarston/vcr</a></p>
+      <pre class='brush: bash'>gem install vcr</pre>
+      <p>Put this in a Cucumber support file (also works with RSpec and Test::Unit)</p>
+      <pre class='brush: ruby'>require 'vcr'
 
-  VCR.configure do |c|
-    c.cassette_library_dir = 'fixtures/vcr_cassettes'
-    c.hook_into :webmock # or :fakeweb
-  end
+VCR.configure do |c|
+c.cassette_library_dir = 'fixtures/vcr_cassettes'
+c.hook_into :webmock # or :fakeweb
+end
 
-  VCR.cucumber_tags do |t|
-    t.tag '@vcr', :use_scenario_name => true
-  end
-          </pre>
-        </div>
-        <p>Tag your scenarios with <code>@vcr</code> or call VCR directly in your steps</p>
-        <p>And then, just run your tests as normal—no more messing with curl!</p>
-      </div>
+VCR.cucumber_tags do |t|
+t.tag '@vcr', :use_scenario_name => true
+end
+      </pre>
+      <p>Tag your scenarios with <code>@vcr</code> or call VCR directly in your steps</p>
+      <p>And then, just run your tests as normal—no more messing with curl!</p>
     </div>
 
     <div class='slide'>
